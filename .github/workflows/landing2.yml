@@ -1,0 +1,51 @@
+# Nama workflow yang akan muncul di tab "Actions" GitHub Anda
+name: Next.js Deploy to Vercel
+
+# Tentukan kapan workflow ini akan berjalan
+on:
+  # Akan berjalan ketika ada push ke branch 'main'
+  push:
+    branches:
+      - main
+  # Memungkinkan Anda menjalankan workflow ini secara manual dari tab "Actions"
+  workflow_dispatch:
+
+# Blok utama yang mendefinisikan pekerjaan yang harus dilakukan
+jobs:
+  deploy:
+    # Tentukan environment di mana pekerjaan akan dijalankan
+    runs-on: ubuntu-latest
+    
+    # Langkah-langkah yang akan dijalankan
+    steps:
+      # 1. Checkout repository Anda
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js Environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Ganti dengan versi Node.js yang sesuai
+
+      # 3. Instal dependensi
+      - name: Install Dependencies
+        run: npm install
+
+      # 4. Build proyek Next.js (Opsional, Vercel CLI biasanya akan melakukan ini juga,
+      #    tapi ini adalah praktik yang baik untuk memastikan build berhasil)
+      - name: Build Project
+        run: npm run build
+
+      # 5. Deploy ke Vercel menggunakan Vercel CLI Action
+      - name: Deploy to Vercel
+        uses: vercel/actions@v1
+        with:
+          # Anda harus mengatur token Vercel API sebagai Secret di GitHub (VERCEL_TOKEN)
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} 
+          # ID Proyek Vercel. Dapatkan dari Vercel Dashboard Settings. (VERCEL_PROJECT_ID)
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          # ID Organisasi Vercel. Dapatkan dari Vercel Dashboard Settings. (VERCEL_ORG_ID)
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          # Path ke root proyek Next.js Anda jika bukan root repo
+          # working-directory: './path-ke-folder-nextjs'
